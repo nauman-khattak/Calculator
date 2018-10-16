@@ -2,17 +2,13 @@ package calculator;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.ComponentOrientation;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.nio.ByteOrder;
-import java.util.ArrayList;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JRadioButton;
@@ -27,6 +23,7 @@ public class CalculatorViewController extends JPanel {
     private JTextField display2;
     private JLabel mode_error_label;
     private JButton dotButton;
+    Controller controller = new Controller();
 
     public CalculatorViewController() {
         this.setLayout(new BorderLayout());
@@ -45,6 +42,8 @@ public class CalculatorViewController extends JPanel {
         backButton.setBorder(BorderFactory.createMatteBorder(0, 5, 0, 0, Color.BLACK));
         backButton.setFont(new Font(backButton.getFont().getName(), Font.BOLD, backButton.getFont().getSize() + 10));
         backButton.setToolTipText("Backspace (Alt-B)");
+        backButton.setActionCommand("backspace");
+        backButton.addActionListener(controller);
 
         display1 = new JTextField(16);
         display1.setEditable(false);
@@ -72,13 +71,23 @@ public class CalculatorViewController extends JPanel {
         JCheckBox modeCheckBox = new JCheckBox("Int");
         modeCheckBox.setPreferredSize(new Dimension(40, 0));
         modeCheckBox.setBackground(Color.green);
+        modeCheckBox.setActionCommand("checkbox");
+        modeCheckBox.addActionListener(controller);
 
         JRadioButton _0RadioButton = new JRadioButton(".0", false);
         _0RadioButton.setBackground(Color.YELLOW);
+        _0RadioButton.setActionCommand(".0");
+        _0RadioButton.addActionListener(controller);
+        
         JRadioButton _00RadioButton = new JRadioButton(".00", true);
         _00RadioButton.setBackground(Color.YELLOW);
+        _00RadioButton.setActionCommand(".00");
+        _00RadioButton.addActionListener(controller);
+        
         JRadioButton sciRadioButton = new JRadioButton("Sci", false);
         sciRadioButton.setBackground(Color.YELLOW);
+        sciRadioButton.setActionCommand("sci");
+        sciRadioButton.addActionListener(controller);
 
         ButtonGroup radioButtonGroup = new ButtonGroup();
         radioButtonGroup.add(_0RadioButton);
@@ -110,8 +119,6 @@ public class CalculatorViewController extends JPanel {
         JPanel keyPadPanel = new JPanel(new GridLayout(4, 4, 5, 5));
         keyPadPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-        Controller controller = new Controller();
-
         String[] keypadText = new String[]{"7", "8", "9", "/", "4", "5", "6", "*", "1", "2", "3", "-", "0", ".", Character.toString('\u00B1'), "+"};
         String[] actionCommand = new String[]{"seven", "eight", "nine", "divide", "four", "five", "six", "multiply", "one", "two", "three", "minus", "zero", "dot", "negate", "add"};
 
@@ -142,6 +149,10 @@ public class CalculatorViewController extends JPanel {
         equalsBtn2.setFont(new Font(equalsBtn2.getFont().getName(), Font.BOLD, equalsBtn2.getFont().getSize() + 10));
         equalsBtn1.setPreferredSize(new Dimension(46, 55));
         equalsBtn2.setPreferredSize(new Dimension(46, 55));
+        equalsBtn1.setActionCommand("equal");
+        equalsBtn2.setActionCommand("equal");
+        equalsBtn1.addActionListener(controller);
+        equalsBtn2.addActionListener(controller);
 
         this.add(equalsBtn1, BorderLayout.WEST);
         this.add(equalsBtn2, BorderLayout.EAST);
@@ -154,6 +165,10 @@ public class CalculatorViewController extends JPanel {
         clearBtn2.setFont(new Font(clearBtn2.getFont().getName(), Font.BOLD, clearBtn2.getFont().getSize() + 10));
         clearBtn1.setPreferredSize(new Dimension(0, 45));
         clearBtn2.setPreferredSize(new Dimension(0, 45));
+        clearBtn1.setActionCommand("clear");
+        clearBtn2.setActionCommand("clear");
+        clearBtn1.addActionListener(controller);
+        clearBtn2.addActionListener(controller);
 
         JPanel clearBtnsAndkeypad = new JPanel(new BorderLayout());
 
@@ -181,9 +196,18 @@ public class CalculatorViewController extends JPanel {
 
         @Override
         public void actionPerformed(ActionEvent e) {
+            if (e.getActionCommand().equals("checkbox")) {
+                if (mode_error_label.getText().equalsIgnoreCase("F")) {
+                    mode_error_label.setText("I");
+                    mode_error_label.setBackground(Color.LIGHT_GRAY);
+                }
+                else if (mode_error_label.getText().equalsIgnoreCase("I")) {
+                    mode_error_label.setText("F");
+                    mode_error_label.setBackground(Color.YELLOW);
+                }
+            }
             String actionCommandString = e.getActionCommand();
             display2.setText(actionCommandString);
         }
-
     }
 }
