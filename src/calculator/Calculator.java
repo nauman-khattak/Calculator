@@ -9,6 +9,7 @@ public class Calculator extends JFrame {
      * @param args the command line arguments
      */
     public Calculator() {
+        new CalculatorSplashScreen(4);
         CalculatorViewController calculatorViewController = new CalculatorViewController();
         this.setUndecorated(false);
         this.add(calculatorViewController);

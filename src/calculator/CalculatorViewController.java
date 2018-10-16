@@ -44,6 +44,7 @@ public class CalculatorViewController extends JPanel {
         backButton.setToolTipText("Backspace (Alt-B)");
         backButton.setActionCommand("backspace");
         backButton.addActionListener(controller);
+        backButton.setMnemonic('B');
 
         display1 = new JTextField(16);
         display1.setEditable(false);
@@ -78,12 +79,12 @@ public class CalculatorViewController extends JPanel {
         _0RadioButton.setBackground(Color.YELLOW);
         _0RadioButton.setActionCommand(".0");
         _0RadioButton.addActionListener(controller);
-        
+
         JRadioButton _00RadioButton = new JRadioButton(".00", true);
         _00RadioButton.setBackground(Color.YELLOW);
         _00RadioButton.setActionCommand(".00");
         _00RadioButton.addActionListener(controller);
-        
+
         JRadioButton sciRadioButton = new JRadioButton("Sci", false);
         sciRadioButton.setBackground(Color.YELLOW);
         sciRadioButton.setActionCommand("sci");
@@ -153,6 +154,7 @@ public class CalculatorViewController extends JPanel {
         equalsBtn2.setActionCommand("equal");
         equalsBtn1.addActionListener(controller);
         equalsBtn2.addActionListener(controller);
+// after the enterButton has been added to the GUI and the GUI displayed, call:
 
         this.add(equalsBtn1, BorderLayout.WEST);
         this.add(equalsBtn2, BorderLayout.EAST);
@@ -178,6 +180,7 @@ public class CalculatorViewController extends JPanel {
         clearBtnsAndkeypad.setBorder(BorderFactory.createMatteBorder(5, 0, 0, 0, Color.black));
 
         this.add(clearBtnsAndkeypad, BorderLayout.CENTER);
+        
     }
 
     private JButton createButton(String text, String ac, Color fg, Color bg, ActionListener handler) {
@@ -200,8 +203,7 @@ public class CalculatorViewController extends JPanel {
                 if (mode_error_label.getText().equalsIgnoreCase("F")) {
                     mode_error_label.setText("I");
                     mode_error_label.setBackground(Color.LIGHT_GRAY);
-                }
-                else if (mode_error_label.getText().equalsIgnoreCase("I")) {
+                } else if (mode_error_label.getText().equalsIgnoreCase("I")) {
                     mode_error_label.setText("F");
                     mode_error_label.setBackground(Color.YELLOW);
                 }
