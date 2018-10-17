@@ -20,26 +20,37 @@ import javax.swing.JTextField;
 public class CalculatorViewController extends JPanel {
 
     private JTextField display1;
-    private JTextField display2;
-    private JLabel mode_error_label;
+    private JTextField display2; //initial value of display2 is 0.0
+    private JLabel mode_error_label; //intital value of this label is F
     private JButton dotButton;
+
+    //Controller class is handling all all events generated due to interation with GUI.
+    //Controller class is private inner class of CalculatorViewController and it implements ActionListener Interface
+    //instantiating Controller class
     Controller controller = new Controller();
 
     public CalculatorViewController() {
+
+        //setting layout of CalculatorViewController panel to BorderLayout
         this.setLayout(new BorderLayout());
+        //setting border of CalculatorViewController panel to MatteBorder with insets 5,5,5,5 and BLACK color
         this.setBorder(BorderFactory.createMatteBorder(5, 5, 5, 5, Color.BLACK));
 
+        //Mode/error label with initial value set to F
+        //Can be seen at the top left corner of the application
         mode_error_label = new JLabel("F", JLabel.CENTER);
         mode_error_label.setPreferredSize(new Dimension(46, 55));
         mode_error_label.setBackground(Color.YELLOW);
         mode_error_label.setOpaque(true);
         mode_error_label.setFont(new Font(mode_error_label.getFont().getName(), Font.BOLD, mode_error_label.getFont().getSize() + 10));
-        mode_error_label.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 5, Color.BLACK));
+        mode_error_label.setBorder(BorderFactory.createMatteBorder(0, 1, 0, 5, Color.BLACK));
 
+        //Backspace button and can be seen at the top right corner of the application
+        //Can respond to Alt+B key combination
         JButton backButton = new JButton(Character.toString('\u21DA'));
         backButton.setPreferredSize(new Dimension(45, 55));
         backButton.setBackground(Color.YELLOW);
-        backButton.setBorder(BorderFactory.createMatteBorder(0, 5, 0, 0, Color.BLACK));
+        backButton.setBorder(BorderFactory.createMatteBorder(0, 5, 0, 1, Color.BLACK));
         backButton.setFont(new Font(backButton.getFont().getName(), Font.BOLD, backButton.getFont().getSize() + 10));
         backButton.setToolTipText("Backspace (Alt-B)");
         backButton.setActionCommand("backspace");
@@ -59,42 +70,56 @@ public class CalculatorViewController extends JPanel {
         display2.setBorder(BorderFactory.createEmptyBorder());
         display2.setText("0.0");
 
+        //Box for holding display1 & display2.
+        //This is vertical Box so components are placed on top of each other.
+        //display1 is added first so its above display2.
+        //display2 is below display1
         Box displayBox = Box.createVerticalBox();
         displayBox.add(display1);
         displayBox.add(display2);
 
+        //mode/error label, displayBox & backButton are added to Panel named upperPanel
+        //They are placed in positions WEST, CENTRE & EAST so that they behave like they are on a single horizontal line
         JPanel upperPanel = new JPanel(new BorderLayout());
         upperPanel.add(mode_error_label, BorderLayout.WEST);
         upperPanel.add(displayBox, BorderLayout.CENTER);
         upperPanel.add(backButton, BorderLayout.EAST);
         upperPanel.setBorder(BorderFactory.createMatteBorder(0, 0, 5, 0, Color.black));
 
+        //Checkbox for setting mode to Int
         JCheckBox modeCheckBox = new JCheckBox("Int");
         modeCheckBox.setPreferredSize(new Dimension(40, 0));
         modeCheckBox.setBackground(Color.green);
         modeCheckBox.setActionCommand("checkbox");
         modeCheckBox.addActionListener(controller);
 
+        // .0 radio button
         JRadioButton _0RadioButton = new JRadioButton(".0", false);
         _0RadioButton.setBackground(Color.YELLOW);
         _0RadioButton.setActionCommand(".0");
         _0RadioButton.addActionListener(controller);
 
+        // .00 radio button
         JRadioButton _00RadioButton = new JRadioButton(".00", true);
         _00RadioButton.setBackground(Color.YELLOW);
         _00RadioButton.setActionCommand(".00");
         _00RadioButton.addActionListener(controller);
 
+        // sci radio button
         JRadioButton sciRadioButton = new JRadioButton("Sci", false);
         sciRadioButton.setBackground(Color.YELLOW);
         sciRadioButton.setActionCommand("sci");
         sciRadioButton.addActionListener(controller);
 
+        // .0, .00 & sci radio buttons are added to a button group
+        // if a radio button is enabled the button group will disable others
+        // only one button is allowed to be enabled at a time inside the group
         ButtonGroup radioButtonGroup = new ButtonGroup();
         radioButtonGroup.add(_0RadioButton);
         radioButtonGroup.add(_00RadioButton);
         radioButtonGroup.add(sciRadioButton);
 
+        // Horizontal box for holding error/mode checkbox and all three radio buttons.
         Box lowerBox = Box.createHorizontalBox();
         lowerBox.add(modeCheckBox);
         lowerBox.add(Box.createGlue());
@@ -105,25 +130,37 @@ public class CalculatorViewController extends JPanel {
         lowerBox.setOpaque(true);
         lowerBox.setBorder(BorderFactory.createMatteBorder(5, 0, 5, 0, Color.black));
 
+        // Panel for holding Box named lowerBox
+        // Panel layout is FlowLayout
+        // FlowLayout is default layout of JPanel unless set otherwise
         JPanel lowerPanel = new JPanel();
         lowerPanel.add(lowerBox);
         lowerPanel.setBackground(Color.BLACK);
         lowerPanel.setOpaque(true);
         lowerPanel.setBorder(BorderFactory.createEmptyBorder());
 
+        // Vertical Box for holding upperPanel and lowerPanel
         Box superBox = Box.createVerticalBox();
         superBox.add(upperPanel);
         superBox.add(lowerBox);
 
-        this.add(superBox, BorderLayout.PAGE_START);
+        // Adding box to the north region of CalculatorViewController panel
+        this.add(superBox, BorderLayout.NORTH);
 
+        // keypad panel with GridLayout
+        // parameters of this GridLayout are (rows, columns, horizontal gap, vertical gap)
         JPanel keyPadPanel = new JPanel(new GridLayout(4, 4, 5, 5));
         keyPadPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
+        // Array for holding text to be displayed on keypad buttons
         String[] keypadText = new String[]{"7", "8", "9", "/", "4", "5", "6", "*", "1", "2", "3", "-", "0", ".", Character.toString('\u00B1'), "+"};
+
+        // Array for holding action command of keypad buttons
         String[] actionCommand = new String[]{"seven", "eight", "nine", "divide", "four", "five", "six", "multiply", "one", "two", "three", "minus", "zero", "dot", "negate", "add"};
 
         //loop for creating keypad buttons
+        //the createButton() method creates the button, sets its text, action command, foreground color, background color and adds actionListener to the button
+        //the method then returns the button
         for (int i = 0; i < keypadText.length; i++) {
             if (keypadText[i].matches("[0-9]")) {
                 keyPadPanel.add(createButton(keypadText[i], actionCommand[i], Color.BLACK, Color.BLUE, controller));
@@ -138,12 +175,14 @@ public class CalculatorViewController extends JPanel {
             if (Character.toString('\u00B1').equals(keypadText[i])) {
                 keyPadPanel.add(createButton(keypadText[i], actionCommand[i], Color.BLACK, Color.PINK, controller));
             }
-        }
 
+        } // end of for loop
+
+        // creating equal buttons
         JButton equalsBtn1 = new JButton("=");
         JButton equalsBtn2 = new JButton("=");
-        equalsBtn1.setBackground(Color.magenta);
-        equalsBtn2.setBackground(Color.magenta);
+        equalsBtn1.setBackground(Color.YELLOW);
+        equalsBtn2.setBackground(Color.YELLOW);
         equalsBtn1.setBorder(BorderFactory.createMatteBorder(5, 0, 0, 5, Color.black));
         equalsBtn2.setBorder(BorderFactory.createMatteBorder(5, 5, 0, 0, Color.black));
         equalsBtn1.setFont(new Font(equalsBtn1.getFont().getName(), Font.BOLD, equalsBtn1.getFont().getSize() + 10));
@@ -154,11 +193,14 @@ public class CalculatorViewController extends JPanel {
         equalsBtn2.setActionCommand("equal");
         equalsBtn1.addActionListener(controller);
         equalsBtn2.addActionListener(controller);
-// after the enterButton has been added to the GUI and the GUI displayed, call:
 
+        // equalsBtn1 is added to the WEST region of the CalculatorViewController panel
         this.add(equalsBtn1, BorderLayout.WEST);
+
+        // equalsBtn2 is added to the EAST region of the CalculatorViewController panel
         this.add(equalsBtn2, BorderLayout.EAST);
 
+        // creating clear buttons
         JButton clearBtn1 = new JButton("C");
         JButton clearBtn2 = new JButton("C");
         clearBtn1.setBackground(Color.red);
@@ -172,31 +214,40 @@ public class CalculatorViewController extends JPanel {
         clearBtn1.addActionListener(controller);
         clearBtn2.addActionListener(controller);
 
+        //panel with borderLayout to hold clear buttons and keypad Panel
         JPanel clearBtnsAndkeypad = new JPanel(new BorderLayout());
 
+        //clearBtn1 is added to the NORTH region, keyPadPanel to the CENTER & clearBtn2 to the SOUTH region of the panel
         clearBtnsAndkeypad.add(clearBtn1, BorderLayout.NORTH);
         clearBtnsAndkeypad.add(keyPadPanel, BorderLayout.CENTER);
         clearBtnsAndkeypad.add(clearBtn2, BorderLayout.SOUTH);
         clearBtnsAndkeypad.setBorder(BorderFactory.createMatteBorder(5, 0, 0, 0, Color.black));
 
+        //clearBtnsAndkeypad panel is finally added to the CENTER region of the CalculatorViewController panel
         this.add(clearBtnsAndkeypad, BorderLayout.CENTER);
-        
-    }
 
+    } // end of CalculatorViewController constructor
+
+    // method for buttons creation
     private JButton createButton(String text, String ac, Color fg, Color bg, ActionListener handler) {
         JButton button = new JButton(text);
         button.setBackground(bg);
         button.setForeground(fg);
+
+        // if ac parameter is null then no need to set ActionCommand
         if (ac != null) {
             button.setActionCommand(ac);
         }
+
         button.setFont(new Font(button.getFont().getFontName(), button.getFont().getStyle(), 20));
         button.addActionListener(handler);
         return button;
-    }
+    } // end createButton method
 
+    // This class handles all events generated by the GUI
     private class Controller implements ActionListener {
 
+        //everytime button, radioButton, checkBox is clicked this method is called.
         @Override
         public void actionPerformed(ActionEvent e) {
             if (e.getActionCommand().equals("checkbox")) {
@@ -211,5 +262,7 @@ public class CalculatorViewController extends JPanel {
             String actionCommandString = e.getActionCommand();
             display2.setText(actionCommandString);
         }
-    }
-}
+
+    } // end Controller class
+
+} // end CalculatorViewController class
