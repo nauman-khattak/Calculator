@@ -7,6 +7,7 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Arrays;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.ButtonGroup;
@@ -23,11 +24,20 @@ public class CalculatorViewController extends JPanel {
     private JTextField display2; //initial value of display2 is 0.0
     private JLabel mode_error_label; //intital value of this label is F
     private JButton dotButton;
+    ButtonGroup buttonGroup;
+    String[] keypadText; //Array for holding text displayed on keypad buttons 
+    String[] actionCommandText; //Array for holding action commands of keypad buttons
+    boolean resultDisplayed = false;
+    boolean operatorAdded = false;
+    boolean backspaceDisabled = false;
+//    StringBuilder display1Text = new StringBuilder();
+//    StringBuilder display2Text = new StringBuilder("0.0");
 
     //Controller class is handling all all events generated due to interation with GUI.
     //Controller class is private inner class of CalculatorViewController and it implements ActionListener Interface
     //instantiating Controller class
     Controller controller = new Controller();
+    CalculatorModel calculatorModel = new CalculatorModel(this);
 
     public CalculatorViewController() {
 
@@ -69,7 +79,6 @@ public class CalculatorViewController extends JPanel {
         display2.setBackground(Color.WHITE);
         display2.setBorder(BorderFactory.createEmptyBorder());
         display2.setText("0.0");
-
         //Box for holding display1 & display2.
         //This is vertical Box so components are placed on top of each other.
         //display1 is added first so its above display2.
@@ -114,10 +123,11 @@ public class CalculatorViewController extends JPanel {
         // .0, .00 & sci radio buttons are added to a button group
         // if a radio button is enabled the button group will disable others
         // only one button is allowed to be enabled at a time inside the group
-        ButtonGroup radioButtonGroup = new ButtonGroup();
-        radioButtonGroup.add(_0RadioButton);
-        radioButtonGroup.add(_00RadioButton);
-        radioButtonGroup.add(sciRadioButton);
+        buttonGroup = new ButtonGroup();
+        buttonGroup.add(_0RadioButton);
+        buttonGroup.add(_00RadioButton);
+        buttonGroup.add(sciRadioButton);
+        buttonGroup.add(modeCheckBox);
 
         // Horizontal box for holding error/mode checkbox and all three radio buttons.
         Box lowerBox = Box.createHorizontalBox();
@@ -153,27 +163,27 @@ public class CalculatorViewController extends JPanel {
         keyPadPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         // Array for holding text to be displayed on keypad buttons
-        String[] keypadText = new String[]{"7", "8", "9", "/", "4", "5", "6", "*", "1", "2", "3", "-", "0", ".", Character.toString('\u00B1'), "+"};
+        keypadText = new String[]{"7", "8", "9", "/", "4", "5", "6", "*", "1", "2", "3", "-", "0", ".", Character.toString('\u00B1'), "+"};
 
         // Array for holding action command of keypad buttons
-        String[] actionCommand = new String[]{"seven", "eight", "nine", "divide", "four", "five", "six", "multiply", "one", "two", "three", "minus", "zero", "dot", "negate", "add"};
+        actionCommandText = new String[]{"seven", "eight", "nine", "divide", "four", "five", "six", "multiply", "one", "two", "three", "minus", "zero", "dot", "negate", "add"};
 
         //loop for creating keypad buttons
         //the createButton() method creates the button, sets its text, action command, foreground color, background color and adds actionListener to the button
         //the method then returns the button
         for (int i = 0; i < keypadText.length; i++) {
             if (keypadText[i].matches("[0-9]")) {
-                keyPadPanel.add(createButton(keypadText[i], actionCommand[i], Color.BLACK, Color.BLUE, controller));
+                keyPadPanel.add(createButton(keypadText[i], actionCommandText[i], Color.BLACK, Color.BLUE, controller));
             }
             if (".".equals(keypadText[i])) {
-                dotButton = createButton(keypadText[i], actionCommand[i], Color.BLACK, Color.BLUE, controller);
+                dotButton = createButton(keypadText[i], actionCommandText[i], Color.BLACK, Color.BLUE, controller);
                 keyPadPanel.add(dotButton);
             }
             if (keypadText[i].matches("[-+*/]")) {
-                keyPadPanel.add(createButton(keypadText[i], actionCommand[i], Color.BLACK, Color.CYAN, controller));
+                keyPadPanel.add(createButton(keypadText[i], actionCommandText[i], Color.BLACK, Color.CYAN, controller));
             }
             if (Character.toString('\u00B1').equals(keypadText[i])) {
-                keyPadPanel.add(createButton(keypadText[i], actionCommand[i], Color.BLACK, Color.PINK, controller));
+                keyPadPanel.add(createButton(keypadText[i], actionCommandText[i], Color.BLACK, Color.PINK, controller));
             }
 
         } // end of for loop
@@ -250,17 +260,101 @@ public class CalculatorViewController extends JPanel {
         //everytime button, radioButton, checkBox is clicked this method is called.
         @Override
         public void actionPerformed(ActionEvent e) {
-            if (e.getActionCommand().equals("checkbox")) {
-                if (mode_error_label.getText().equalsIgnoreCase("F")) {
-                    mode_error_label.setText("I");
-                    mode_error_label.setBackground(Color.LIGHT_GRAY);
-                } else if (mode_error_label.getText().equalsIgnoreCase("I")) {
+            String actionCommand = e.getActionCommand();
+            switch (actionCommand) {
+                case "one":
+                case "two":
+                case "three":
+                case "four":
+                case "five":
+                case "six":
+                case "seven":
+                case "eight":
+                case "nine":
+                case "zero":
+                case "dot":
+                    //(display2.getText().equals(display1.getText().substring(0, display1.getText().length()-1)))
+                    if (display2.getText().equals("0.0") || resultDisplayed || operatorAdded) {
+                        display2.setText(keypadText[Arrays.asList(actionCommandText).indexOf(actionCommand)]);
+                        if (operatorAdded) {
+                            operatorAdded = false;
+                        }
+                        if (backspaceDisabled) {
+                            backspaceDisabled = false;
+                        }
+                        if (resultDisplayed) {
+                            resultDisplayed = false;
+                        }
+                    } else {
+                        display2.setText(display2.getText().concat(keypadText[Arrays.asList(actionCommandText).indexOf(actionCommand)]));
+                    }
+                    break;
+                case "divide":
+                case "multiply":
+                case "add":
+                case "minus":
+                    if (display2.getText().equals("0.0") && display1.getText().length() == 0) {
+                        return;
+                    }
+                    display1.setText(display2.getText().concat(keypadText[Arrays.asList(actionCommandText).indexOf(actionCommand)]));
+                    operatorAdded = true;
+                    backspaceDisabled = true;
+                    break;
+                case "checkbox":
+                    if (mode_error_label.getText().equalsIgnoreCase("F")) {
+                        mode_error_label.setText("I");
+                        mode_error_label.setBackground(Color.GREEN);
+                        dotButton.setEnabled(false);
+                        dotButton.setBackground(new Color(178, 156, 250));
+                    }
+                    break;
+                case "backspace":
+                    if (backspaceDisabled || display2.getText().length() == 0) {
+                        return;
+                    }
+                    if (!display2.getText().equals("0.0")) {
+                        display2.setText(display2.getText().substring(0, display2.getText().length() - 1));
+                    }
+
+                    break;
+                case ".0":
+                case ".00":
+                case "sci":
                     mode_error_label.setText("F");
                     mode_error_label.setBackground(Color.YELLOW);
-                }
+                    dotButton.setBackground(Color.BLUE);
+                    dotButton.setEnabled(true);
+                    break;
+                case "equal":
+                    if (display1.getText().length() == 0) {
+                        return;
+                    }
+                    calculatorModel.setOperand1(display1.getText().substring(0, display1.getText().length() - 1));
+                    System.out.println("operand1 = " + display1.getText().substring(0, display1.getText().length() - 1)); //logging
+
+                    calculatorModel.setArithmeticOperation(display1.getText().substring(display1.getText().length() - 1));
+                    System.out.println("operator = " + display1.getText().substring(display1.getText().length() - 1)); //logging
+
+                    calculatorModel.setOperand2(display2.getText());
+                    System.out.println("operand2 = " + display2.getText()); //logging
+
+                    calculatorModel.setOperationalMode(mode_error_label.getText());
+                    calculatorModel.setFloatingPointPrecision(buttonGroup.getSelection().getActionCommand());
+                    calculatorModel.setErrorState(false);
+                    display2.setText(calculatorModel.getResult());
+                    backspaceDisabled = true;
+                    resultDisplayed = true;
+                    break;
+                case "clear":
+                    display1.setText("");
+                    if (buttonGroup.getSelection().getActionCommand().equals("checkbox")) {
+                        display2.setText("0");
+                    } else {
+                        display2.setText("0.0");
+                    }
+                    break;
             }
-            String actionCommandString = e.getActionCommand();
-            display2.setText(actionCommandString);
+
         }
 
     } // end Controller class

@@ -8,7 +8,7 @@ public class Calculator extends JFrame {
     public Calculator() {
 
         //instantiating CalculatorSplashScreen with time duration argument of 4 secs
-        new CalculatorSplashScreen(4);
+//        new CalculatorSplashScreen(4);
 
         //instantiating CalculatorViewController
         CalculatorViewController calculatorViewController = new CalculatorViewController();
