@@ -22,6 +22,9 @@ public class Calculator extends JFrame {
         this.setLocationByPlatform(true);
         this.pack();
         this.setVisible(true);
+        System.out.println(2/2);
+        System.out.println(1/2);
+        System.out.println(1.0/2.0);
     }
 
     public static void main(String[] args) {

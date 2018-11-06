@@ -29,10 +29,10 @@ public class CalculatorViewController extends JPanel {
     String[] actionCommandText; //Array for holding action commands of keypad buttons
     boolean resultDisplayed = false;
     boolean operatorAdded = false;
-    boolean backspaceDisabled = false;
-    boolean errorCheck = false;
-//    StringBuilder display1Text = new StringBuilder();
-//    StringBuilder display2Text = new StringBuilder("0.0");
+    boolean backspaceDisabled = false; //this will check if backspace button is disabled or enabled
+    boolean errorCheck = false; //a helper to check if error occured or not. If error occured then keypad buttons and equal button will not response to click events.
+    boolean clearPressed = false; //a helper to check if its time to save display1 text in a String display1Text
+    String display1Text = ""; //this will store display1 text when result is displayed on display2
 
     //Controller class is handling all all events generated due to interation with GUI.
     //Controller class is private inner class of CalculatorViewController and it implements ActionListener Interface
@@ -273,6 +273,16 @@ public class CalculatorViewController extends JPanel {
                 case "eight":
                 case "nine":
                 case "zero":
+                case "dot":
+                    if ("dot".equals(actionCommand)) {
+                        try {
+                            Float.valueOf(display2.getText().concat("."));
+                        } catch (Exception ex) {
+                            if (ex.getMessage().equalsIgnoreCase("multiple points")) {
+                                return;
+                            }
+                        }
+                    }
                     if (errorCheck) {
                         return;
                     }
@@ -299,15 +309,20 @@ public class CalculatorViewController extends JPanel {
                     if (errorCheck) {
                         return;
                     }
+                    if ("minus".equals(actionCommand)) {
+                        if ((display2.getText().equals("0") || display2.getText().equals("0.0") || display2.getText().length() == 0) && !display2.getText().contains("-")) {
+                            display2.setText("-");
+                            return;
+                        }
+                    }
                     if (display2.getText().equals("0.0") && display1.getText().length() == 0) {
                         return;
                     }
                     display1.setText(display2.getText().concat(keypadText[Arrays.asList(actionCommandText).indexOf(actionCommand)]));
+                    display1Text = display1.getText();
                     operatorAdded = true;
                     backspaceDisabled = true;
                     break;
-                    case "dot":
-                        break;
                 case "negate":
                     if (errorCheck) {
                         return;
@@ -365,14 +380,14 @@ public class CalculatorViewController extends JPanel {
                     if (errorCheck) {
                         return;
                     }
-                    if (display1.getText().length() == 0) {
+                    if (display1Text.length() == 0 && display1.getText().length() == 0) {
                         return;
                     }
-                    calculatorModel.setOperand1(display1.getText().substring(0, display1.getText().length() - 1));
-//                    System.out.println("operand1 = " + display1.getText().substring(0, display1.getText().length() - 1)); //logging
+                    calculatorModel.setOperand1(display1Text.substring(0, display1Text.length() - 1));
+//                    System.out.println("operand1 = " + display1Text.substring(0, display1Text.length() - 1)); //logging
 
-                    calculatorModel.setArithmeticOperation(display1.getText().substring(display1.getText().length() - 1));
-//                    System.out.println("operator = " + display1.getText().substring(display1.getText().length() - 1)); //logging
+                    calculatorModel.setArithmeticOperation(display1Text.substring(display1Text.length() - 1));
+//                    System.out.println("operator = " + display1Text.substring(display1Text.length() - 1)); //logging
 
                     calculatorModel.setOperand2(display2.getText());
 //                    System.out.println("operand2 = " + display2.getText()); //logging
@@ -380,6 +395,11 @@ public class CalculatorViewController extends JPanel {
                     calculatorModel.setOperationalMode(mode_error_label.getText());
                     calculatorModel.setFloatingPointPrecision(buttonGroup.getSelection().getActionCommand());
                     display2.setText(calculatorModel.getResult());
+                    if (clearPressed) {
+                        display1Text = display1.getText();
+                        clearPressed = false;
+                    }
+                    display1.setText("");
                     if (calculatorModel.getErrorState()) {
                         mode_error_label.setText("E");
                         mode_error_label.setBackground(Color.red);
@@ -390,15 +410,11 @@ public class CalculatorViewController extends JPanel {
                     resultDisplayed = true;
                     break;
                 case "clear":
-                    display1.setText("");
                     if (buttonGroup.getSelection().getActionCommand().equals("checkbox")) {
                         display2.setText("0");
                     } else {
                         display2.setText("0.0");
                     }
-                    resultDisplayed = false;
-                    operatorAdded = false;
-                    backspaceDisabled = true;
                     if (errorCheck) {
                         if (buttonGroup.getSelection().getActionCommand().equals("checkbox")) {
                             mode_error_label.setText("I");
@@ -409,11 +425,14 @@ public class CalculatorViewController extends JPanel {
                         }
                     }
                     errorCheck = false;
+                    resultDisplayed = false;
+                    operatorAdded = false;
+                    backspaceDisabled = true;
+                    clearPressed = true;
+                    display1Text = "";
+                    display1.setText("");
                     break;
             }
-
         }
-
     } // end Controller class
-
 } // end CalculatorViewController class
