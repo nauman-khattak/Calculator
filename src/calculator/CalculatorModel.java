@@ -2,11 +2,11 @@ package calculator;
 
 public class CalculatorModel {
 
-    String operand1;
+    String operand1; 
     String operand2;
-    String arithmeticOperation;
+    String arithmeticOperation; //+ - * /
     String operationalMode; //integer or float
-    String floatingPointPrecision;
+    String floatingPointPrecision; // .0 or .00 or Sci
     boolean errorState;
     String result;
     int divisionCounter = 0;
@@ -168,6 +168,7 @@ public class CalculatorModel {
         switch (floatingPointPrecision) {
             case ".0":
                 try {
+                    //%.2f means one decimal place
                     result = String.format("%.1f", Double.valueOf(result));
                 } catch (Exception e) {
                     result = e.getMessage();
@@ -175,6 +176,7 @@ public class CalculatorModel {
                 break;
             case ".00":
                 try {
+                    //%.2f means two decimal places
                     result = String.format("%.2f", Double.valueOf(result));
                 } catch (Exception e) {
                     result = e.getMessage();
@@ -182,6 +184,7 @@ public class CalculatorModel {
                 break;
             case "sci":
                 try {
+                    //%9.6E means there are maximum 9 meaningful digits in the result, 6 decimal place digits, E should be used for ^10
                     result = String.format("%9.6E", Double.valueOf(result));
                 } catch (Exception e) {
                     result = e.getMessage();
