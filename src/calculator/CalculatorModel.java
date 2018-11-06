@@ -8,7 +8,7 @@ public class CalculatorModel {
     String operationalMode; //integer or float
     String floatingPointPrecision;
     boolean errorState;
-    boolean exception;
+    String result;
 
     CalculatorViewController calculatorViewController;
 
@@ -39,13 +39,18 @@ public class CalculatorModel {
     public void setErrorState(boolean errorState) {
         this.errorState = errorState;
     }
+    
+    public boolean getErrorState(){
+        return this.errorState;
+    }
 
     public String getResult() {
         calculate();
-        parseResult();
+        if ("F".equals(operationalMode)) {
+            parseResult();
+        }
         return result;
     }
-    String result;
 
     private void calculate() {
 
@@ -57,7 +62,7 @@ public class CalculatorModel {
                     } catch (Exception e) {
                         e.printStackTrace();
                         result = e.getMessage();
-                        exception = true;
+                        errorState = true;
                     }
                     break;
                 case "-":
@@ -66,6 +71,7 @@ public class CalculatorModel {
                     } catch (Exception e) {
                         e.printStackTrace();
                         result = e.getMessage();
+                        errorState = true;
                     }
                     break;
                 case "/":
@@ -74,9 +80,11 @@ public class CalculatorModel {
                     } catch (Exception e) {
                         if (e.getMessage().equals("/ by zero")) {
                             result = "Cannot divide by zero";
+                            errorState = true;
                             return;
                         }
                         result = e.getMessage();
+                        errorState = true;
                     }
                     break;
                 case "*":
@@ -85,6 +93,7 @@ public class CalculatorModel {
                     } catch (Exception e) {
                         e.printStackTrace();
                         result = e.toString();
+                        errorState = true;
                     }
                     break;
             }
@@ -97,45 +106,79 @@ public class CalculatorModel {
                     } catch (Exception e) {
                         e.printStackTrace();
                         result = e.getMessage();
+                        errorState = true;
                     }
                     break;
                 case "-":
                     try {
-                        result = String.valueOf(Float.valueOf(operand1)-Float.valueOf(operand2));
+                        result = String.valueOf(Float.valueOf(operand1) - Float.valueOf(operand2));
                     } catch (Exception e) {
                         e.printStackTrace();
                         result = e.getMessage();
+                        errorState = true;
                     }
                     break;
                 case "/":
                     try {
-                        result = String.valueOf(Float.valueOf(operand1)/Float.valueOf(operand2));
+                        result = String.valueOf(Float.valueOf(operand1) / Float.valueOf(operand2));
+                        if (result.equalsIgnoreCase("infinity")) {
+                            result = "Cannot divide by zero";
+                            errorState = true;
+                        }
                     } catch (Exception e) {
                         if (e.getMessage().equals("/ by zero")) {
                             result = "Cannot divide by zero";
+                            errorState = true;
                             return;
                         }
                         result = e.getMessage();
+                        e.printStackTrace();
+                        errorState = true;
                     }
                     break;
                 case "*":
                     try {
-                        result = String.valueOf(Float.valueOf(operand1)*Float.valueOf(operand2));
+                        result = String.valueOf(Float.valueOf(operand1) * Float.valueOf(operand2));
                     } catch (Exception e) {
                         e.printStackTrace();
-//                        result = e.getMessage();
-//                        result = e.toString();
+                        result = e.getMessage();
+                        errorState = true;
                     }
                     break;
             }
         }
 
     } //ends calculate()
-    
-    public void parseResult(){
-        if (exception) {
+
+    public void parseResult() {
+        if (errorState) {
             return;
         }
-        
+        switch (floatingPointPrecision) {
+            case ".0":
+                try {
+                    result = String.format("%.1f", Double.valueOf(result));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    result = e.getMessage();
+                }
+                break;
+            case ".00":
+                try {
+                    result = String.format("%.2f", Double.valueOf(result));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    result = e.getMessage();
+                }
+                break;
+            case "sci":
+                try {
+//                    result = String.format("%.1f", Double.valueOf(result));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    result = e.getMessage();
+                }
+                break;
+        }
     }
 }

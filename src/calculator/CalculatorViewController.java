@@ -19,7 +19,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 public class CalculatorViewController extends JPanel {
-
+    
     private JTextField display1;
     private JTextField display2; //initial value of display2 is 0.0
     private JLabel mode_error_label; //intital value of this label is F
@@ -30,6 +30,7 @@ public class CalculatorViewController extends JPanel {
     boolean resultDisplayed = false;
     boolean operatorAdded = false;
     boolean backspaceDisabled = false;
+    boolean errorCheck = false;
 //    StringBuilder display1Text = new StringBuilder();
 //    StringBuilder display2Text = new StringBuilder("0.0");
 
@@ -38,7 +39,7 @@ public class CalculatorViewController extends JPanel {
     //instantiating Controller class
     Controller controller = new Controller();
     CalculatorModel calculatorModel = new CalculatorModel(this);
-
+    
     public CalculatorViewController() {
 
         //setting layout of CalculatorViewController panel to BorderLayout
@@ -66,13 +67,13 @@ public class CalculatorViewController extends JPanel {
         backButton.setActionCommand("backspace");
         backButton.addActionListener(controller);
         backButton.setMnemonic('B');
-
+        
         display1 = new JTextField(16);
         display1.setEditable(false);
         display1.setHorizontalAlignment(JTextField.RIGHT);
         display1.setBackground(Color.WHITE);
         display1.setBorder(BorderFactory.createEmptyBorder());
-
+        
         display2 = new JTextField(16);
         display2.setEditable(false);
         display2.setHorizontalAlignment(JTextField.RIGHT);
@@ -185,7 +186,7 @@ public class CalculatorViewController extends JPanel {
             if (Character.toString('\u00B1').equals(keypadText[i])) {
                 keyPadPanel.add(createButton(keypadText[i], actionCommandText[i], Color.BLACK, Color.PINK, controller));
             }
-
+            
         } // end of for loop
 
         // creating equal buttons
@@ -235,7 +236,7 @@ public class CalculatorViewController extends JPanel {
 
         //clearBtnsAndkeypad panel is finally added to the CENTER region of the CalculatorViewController panel
         this.add(clearBtnsAndkeypad, BorderLayout.CENTER);
-
+        
     } // end of CalculatorViewController constructor
 
     // method for buttons creation
@@ -248,7 +249,7 @@ public class CalculatorViewController extends JPanel {
         if (ac != null) {
             button.setActionCommand(ac);
         }
-
+        
         button.setFont(new Font(button.getFont().getFontName(), button.getFont().getStyle(), 20));
         button.addActionListener(handler);
         return button;
@@ -273,32 +274,49 @@ public class CalculatorViewController extends JPanel {
                 case "nine":
                 case "zero":
                 case "dot":
+                    if (errorCheck) {
+                        return;
+                    }
                     //(display2.getText().equals(display1.getText().substring(0, display1.getText().length()-1)))
-                    if (display2.getText().equals("0.0") || resultDisplayed || operatorAdded) {
+                    if (display2.getText().equals("0.0") || operatorAdded || (!actionCommand.equals("zero") && "0".equals(display2.getText()))) {
                         display2.setText(keypadText[Arrays.asList(actionCommandText).indexOf(actionCommand)]);
-                        if (operatorAdded) {
-                            operatorAdded = false;
-                        }
-                        if (backspaceDisabled) {
-                            backspaceDisabled = false;
-                        }
-                        if (resultDisplayed) {
-                            resultDisplayed = false;
-                        }
+                    } else if (resultDisplayed) {
+                        display2.setText(keypadText[Arrays.asList(actionCommandText).indexOf(actionCommand)]);
+                        display1.setText("");
+                        resultDisplayed = false;
                     } else {
                         display2.setText(display2.getText().concat(keypadText[Arrays.asList(actionCommandText).indexOf(actionCommand)]));
+                    }
+                    if (operatorAdded) {
+                        operatorAdded = false;
+                    }
+                    if (backspaceDisabled) {
+                        backspaceDisabled = false;
                     }
                     break;
                 case "divide":
                 case "multiply":
                 case "add":
                 case "minus":
+                    if (errorCheck) {
+                        return;
+                    }
                     if (display2.getText().equals("0.0") && display1.getText().length() == 0) {
                         return;
                     }
                     display1.setText(display2.getText().concat(keypadText[Arrays.asList(actionCommandText).indexOf(actionCommand)]));
                     operatorAdded = true;
                     backspaceDisabled = true;
+                    break;
+                case "negate":
+                    if (errorCheck) {
+                        return;
+                    }
+                    if (display2.getText().charAt(0) == '-') {
+                        display2.setText(display2.getText().substring(1));
+                    } else {
+                        display2.setText("-".concat(display2.getText()));
+                    }
                     break;
                 case "checkbox":
                     if (mode_error_label.getText().equalsIgnoreCase("F")) {
@@ -309,23 +327,40 @@ public class CalculatorViewController extends JPanel {
                     }
                     break;
                 case "backspace":
+                    if (errorCheck) {
+                        return;
+                    }
                     if (backspaceDisabled || display2.getText().length() == 0) {
+                        return;
+                    }
+                    if ((display2.getText().length() <= 2) && "-".equals(display2.getText().charAt(0))) {
+                        if ("checkbox".equals(buttonGroup.getSelection().getActionCommand())) {
+                            display2.setText("0");
+                        } else {
+                            display2.setText("0.0");
+                        }
                         return;
                     }
                     if (!display2.getText().equals("0.0")) {
                         display2.setText(display2.getText().substring(0, display2.getText().length() - 1));
                     }
-
+                    
                     break;
                 case ".0":
                 case ".00":
                 case "sci":
+                    if (errorCheck) {
+                        return;
+                    }
                     mode_error_label.setText("F");
                     mode_error_label.setBackground(Color.YELLOW);
                     dotButton.setBackground(Color.BLUE);
                     dotButton.setEnabled(true);
                     break;
                 case "equal":
+                    if (errorCheck) {
+                        return;
+                    }
                     if (display1.getText().length() == 0) {
                         return;
                     }
@@ -340,8 +375,13 @@ public class CalculatorViewController extends JPanel {
 
                     calculatorModel.setOperationalMode(mode_error_label.getText());
                     calculatorModel.setFloatingPointPrecision(buttonGroup.getSelection().getActionCommand());
-                    calculatorModel.setErrorState(false);
                     display2.setText(calculatorModel.getResult());
+                    if (calculatorModel.getErrorState()) {
+                        mode_error_label.setText("E");
+                        mode_error_label.setBackground(Color.red);
+                        errorCheck = true;
+                    }
+                    calculatorModel.setErrorState(false);
                     backspaceDisabled = true;
                     resultDisplayed = true;
                     break;
@@ -352,11 +392,24 @@ public class CalculatorViewController extends JPanel {
                     } else {
                         display2.setText("0.0");
                     }
+                    resultDisplayed = false;
+                    operatorAdded = false;
+                    backspaceDisabled = true;
+                    if (errorCheck) {
+                        if (buttonGroup.getSelection().getActionCommand().equals("checkbox")) {
+                            mode_error_label.setText("I");
+                            mode_error_label.setBackground(Color.green);
+                        } else{
+                            mode_error_label.setText("F");
+                            mode_error_label.setBackground(Color.yellow);
+                        }
+                    }
+                    errorCheck = false;
                     break;
             }
-
+            
         }
-
+        
     } // end Controller class
 
 } // end CalculatorViewController class
