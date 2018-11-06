@@ -121,8 +121,12 @@ public class CalculatorModel {
                 case "/":
                     try {
                         result = String.valueOf(Float.valueOf(operand1) / Float.valueOf(operand2));
-                        if (result.equalsIgnoreCase("infinity")) {
+                        if (result.equalsIgnoreCase("Infinity")) {
                             result = "Cannot divide by zero";
+                            errorState = true;
+                        }
+                        if (result.equalsIgnoreCase("NaN")) {
+                            result = "Result is undefined";
                             errorState = true;
                         }
                     } catch (Exception e) {
@@ -173,7 +177,7 @@ public class CalculatorModel {
                 break;
             case "sci":
                 try {
-//                    result = String.format("%.1f", Double.valueOf(result));
+                    result = String.format("%9.6E", Double.valueOf(result));
                 } catch (Exception e) {
                     e.printStackTrace();
                     result = e.getMessage();

@@ -19,7 +19,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 public class CalculatorViewController extends JPanel {
-    
+
     private JTextField display1;
     private JTextField display2; //initial value of display2 is 0.0
     private JLabel mode_error_label; //intital value of this label is F
@@ -39,7 +39,7 @@ public class CalculatorViewController extends JPanel {
     //instantiating Controller class
     Controller controller = new Controller();
     CalculatorModel calculatorModel = new CalculatorModel(this);
-    
+
     public CalculatorViewController() {
 
         //setting layout of CalculatorViewController panel to BorderLayout
@@ -67,13 +67,13 @@ public class CalculatorViewController extends JPanel {
         backButton.setActionCommand("backspace");
         backButton.addActionListener(controller);
         backButton.setMnemonic('B');
-        
+
         display1 = new JTextField(16);
         display1.setEditable(false);
         display1.setHorizontalAlignment(JTextField.RIGHT);
         display1.setBackground(Color.WHITE);
         display1.setBorder(BorderFactory.createEmptyBorder());
-        
+
         display2 = new JTextField(16);
         display2.setEditable(false);
         display2.setHorizontalAlignment(JTextField.RIGHT);
@@ -186,7 +186,7 @@ public class CalculatorViewController extends JPanel {
             if (Character.toString('\u00B1').equals(keypadText[i])) {
                 keyPadPanel.add(createButton(keypadText[i], actionCommandText[i], Color.BLACK, Color.PINK, controller));
             }
-            
+
         } // end of for loop
 
         // creating equal buttons
@@ -236,7 +236,7 @@ public class CalculatorViewController extends JPanel {
 
         //clearBtnsAndkeypad panel is finally added to the CENTER region of the CalculatorViewController panel
         this.add(clearBtnsAndkeypad, BorderLayout.CENTER);
-        
+
     } // end of CalculatorViewController constructor
 
     // method for buttons creation
@@ -249,7 +249,7 @@ public class CalculatorViewController extends JPanel {
         if (ac != null) {
             button.setActionCommand(ac);
         }
-        
+
         button.setFont(new Font(button.getFont().getFontName(), button.getFont().getStyle(), 20));
         button.addActionListener(handler);
         return button;
@@ -273,11 +273,9 @@ public class CalculatorViewController extends JPanel {
                 case "eight":
                 case "nine":
                 case "zero":
-                case "dot":
                     if (errorCheck) {
                         return;
                     }
-                    //(display2.getText().equals(display1.getText().substring(0, display1.getText().length()-1)))
                     if (display2.getText().equals("0.0") || operatorAdded || (!actionCommand.equals("zero") && "0".equals(display2.getText()))) {
                         display2.setText(keypadText[Arrays.asList(actionCommandText).indexOf(actionCommand)]);
                     } else if (resultDisplayed) {
@@ -308,6 +306,8 @@ public class CalculatorViewController extends JPanel {
                     operatorAdded = true;
                     backspaceDisabled = true;
                     break;
+                    case "dot":
+                        break;
                 case "negate":
                     if (errorCheck) {
                         return;
@@ -324,6 +324,8 @@ public class CalculatorViewController extends JPanel {
                         mode_error_label.setBackground(Color.GREEN);
                         dotButton.setEnabled(false);
                         dotButton.setBackground(new Color(178, 156, 250));
+                        display1.setText("");
+                        display2.setText("0");
                     }
                     break;
                 case "backspace":
@@ -344,7 +346,7 @@ public class CalculatorViewController extends JPanel {
                     if (!display2.getText().equals("0.0")) {
                         display2.setText(display2.getText().substring(0, display2.getText().length() - 1));
                     }
-                    
+
                     break;
                 case ".0":
                 case ".00":
@@ -356,6 +358,8 @@ public class CalculatorViewController extends JPanel {
                     mode_error_label.setBackground(Color.YELLOW);
                     dotButton.setBackground(Color.BLUE);
                     dotButton.setEnabled(true);
+                    display1.setText("");
+                    display2.setText("0.0");
                     break;
                 case "equal":
                     if (errorCheck) {
@@ -365,13 +369,13 @@ public class CalculatorViewController extends JPanel {
                         return;
                     }
                     calculatorModel.setOperand1(display1.getText().substring(0, display1.getText().length() - 1));
-                    System.out.println("operand1 = " + display1.getText().substring(0, display1.getText().length() - 1)); //logging
+//                    System.out.println("operand1 = " + display1.getText().substring(0, display1.getText().length() - 1)); //logging
 
                     calculatorModel.setArithmeticOperation(display1.getText().substring(display1.getText().length() - 1));
-                    System.out.println("operator = " + display1.getText().substring(display1.getText().length() - 1)); //logging
+//                    System.out.println("operator = " + display1.getText().substring(display1.getText().length() - 1)); //logging
 
                     calculatorModel.setOperand2(display2.getText());
-                    System.out.println("operand2 = " + display2.getText()); //logging
+//                    System.out.println("operand2 = " + display2.getText()); //logging
 
                     calculatorModel.setOperationalMode(mode_error_label.getText());
                     calculatorModel.setFloatingPointPrecision(buttonGroup.getSelection().getActionCommand());
@@ -399,7 +403,7 @@ public class CalculatorViewController extends JPanel {
                         if (buttonGroup.getSelection().getActionCommand().equals("checkbox")) {
                             mode_error_label.setText("I");
                             mode_error_label.setBackground(Color.green);
-                        } else{
+                        } else {
                             mode_error_label.setText("F");
                             mode_error_label.setBackground(Color.yellow);
                         }
@@ -407,9 +411,9 @@ public class CalculatorViewController extends JPanel {
                     errorCheck = false;
                     break;
             }
-            
+
         }
-        
+
     } // end Controller class
 
 } // end CalculatorViewController class
