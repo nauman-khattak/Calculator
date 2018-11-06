@@ -27,6 +27,7 @@ public class CalculatorViewController extends JPanel {
     ButtonGroup buttonGroup;
     String[] keypadText; //Array for holding text displayed on keypad buttons 
     String[] actionCommandText; //Array for holding action commands of keypad buttons
+    String result;
     boolean resultDisplayed = false;
     boolean operatorAdded = false;
     boolean backspaceDisabled = false; //this will check if backspace button is disabled or enabled
@@ -342,15 +343,13 @@ public class CalculatorViewController extends JPanel {
                         display1.setText("");
                         display2.setText("0");
                     }
+                    calculatorModel.divisionCounter = 0;
                     break;
                 case "backspace":
-                    if (errorCheck) {
+                    if (backspaceDisabled || errorCheck || display2.getText().length() == 0) {
                         return;
                     }
-                    if (backspaceDisabled || display2.getText().length() == 0) {
-                        return;
-                    }
-                    if ((display2.getText().length() <= 2) && "-".equals(display2.getText().charAt(0))) {
+                    if (display2.getText().length() <= 2 && String.valueOf(display2.getText().charAt(0)).equals("-")) {
                         if ("checkbox".equals(buttonGroup.getSelection().getActionCommand())) {
                             display2.setText("0");
                         } else {
@@ -375,6 +374,7 @@ public class CalculatorViewController extends JPanel {
                     dotButton.setEnabled(true);
                     display1.setText("");
                     display2.setText("0.0");
+                    calculatorModel.divisionCounter = 0;
                     break;
                 case "equal":
                     if (errorCheck) {
@@ -394,7 +394,8 @@ public class CalculatorViewController extends JPanel {
 
                     calculatorModel.setOperationalMode(mode_error_label.getText());
                     calculatorModel.setFloatingPointPrecision(buttonGroup.getSelection().getActionCommand());
-                    display2.setText(calculatorModel.getResult());
+                    result = calculatorModel.getResult();
+                    display2.setText(result);
                     if (clearPressed) {
                         display1Text = display1.getText();
                         clearPressed = false;
@@ -431,6 +432,7 @@ public class CalculatorViewController extends JPanel {
                     clearPressed = true;
                     display1Text = "";
                     display1.setText("");
+                    calculatorModel.divisionCounter = 0;
                     break;
             }
         }
